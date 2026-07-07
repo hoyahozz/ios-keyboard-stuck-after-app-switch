@@ -6,11 +6,17 @@ void main() {
   testWidgets("shows the iOS keyboard app switch controls", (
     WidgetTester tester,
   ) async {
+    tester.view.physicalSize = const Size(1000, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(const KeyboardAppSwitchApp());
 
     expect(find.text("iOS Keyboard App Switch"), findsOneWidget);
     expect(find.text("First TextField"), findsOneWidget);
     expect(find.text("Second TextField"), findsOneWidget);
+    expect(find.text("TextField focus"), findsOneWidget);
 
     final Finder scrollView = find.byKey(
       const ValueKey("keyboard_app_switch_scroll_view"),

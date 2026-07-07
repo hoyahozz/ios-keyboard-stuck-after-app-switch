@@ -40,6 +40,8 @@ final class _KeyboardAppSwitchPageState extends State<KeyboardAppSwitchPage>
 
   AppLifecycleState? _lifecycleState;
   String _lastFocusDescription = "null";
+  String _lastTextFieldFocusDescription =
+      "first=false, second=false, multiline=false";
   String _lastInsetsDescription = "unknown";
 
   @override
@@ -82,7 +84,11 @@ final class _KeyboardAppSwitchPageState extends State<KeyboardAppSwitchPage>
 
   void _recordFocus(String reason) {
     _lastFocusDescription = _describePrimaryFocus();
-    _record("$reason: primaryFocus=$_lastFocusDescription");
+    _lastTextFieldFocusDescription = _describeTextFieldFocus();
+    _record(
+      "$reason: primaryFocus=$_lastFocusDescription; "
+      "textFieldFocus=$_lastTextFieldFocusDescription",
+    );
   }
 
   void _recordMetrics(String reason) {
@@ -105,6 +111,12 @@ final class _KeyboardAppSwitchPageState extends State<KeyboardAppSwitchPage>
     if (debugLabel != null && debugLabel.isNotEmpty) return debugLabel;
 
     return primaryFocus.toString();
+  }
+
+  String _describeTextFieldFocus() {
+    return "first=${_firstFocusNode.hasFocus}, "
+        "second=${_secondFocusNode.hasFocus}, "
+        "multiline=${_multilineFocusNode.hasFocus}";
   }
 
   void _unfocusPrimaryFocus() {
@@ -169,12 +181,13 @@ final class _KeyboardAppSwitchPageState extends State<KeyboardAppSwitchPage>
               "1. Focus any TextField.\n"
               "2. While the iOS keyboard is visible, quickly switch to another app using the home indicator.\n"
               "3. Return to this app.\n"
-              "4. Check whether primaryFocus is null while the iOS keyboard is still visible.",
+              "4. Check whether no TextField has focus while the iOS keyboard is still visible.",
             ),
             const SizedBox(height: 16),
             _StatusPanel(
               lifecycleState: _lifecycleState,
               primaryFocus: _lastFocusDescription,
+              textFieldFocus: _lastTextFieldFocusDescription,
               viewInsets: _lastInsetsDescription,
               mediaQueryBottomInset: mediaQueryBottomInset,
             ),
@@ -236,12 +249,14 @@ final class _StatusPanel extends StatelessWidget {
   const _StatusPanel({
     required this.lifecycleState,
     required this.primaryFocus,
+    required this.textFieldFocus,
     required this.viewInsets,
     required this.mediaQueryBottomInset,
   });
 
   final AppLifecycleState? lifecycleState;
   final String primaryFocus;
+  final String textFieldFocus;
   final String viewInsets;
   final double mediaQueryBottomInset;
 
@@ -262,6 +277,7 @@ final class _StatusPanel extends StatelessWidget {
               value: lifecycleState?.toString() ?? "unknown",
             ),
             _StatusRow(label: "Primary focus", value: primaryFocus),
+            _StatusRow(label: "TextField focus", value: textFieldFocus),
             _StatusRow(label: "FlutterView inset", value: viewInsets),
             _StatusRow(
               label: "MediaQuery inset",

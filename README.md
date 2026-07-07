@@ -1,25 +1,34 @@
 # iOS Keyboard Stuck After Quick App Switch
 
-Minimal Flutter sample for an iOS `TextField` / keyboard state mismatch.
+This is a minimal Flutter sample for an iOS keyboard state mismatch after quickly switching apps with the home indicator.
 
-When a `TextField` is focused and the user quickly switches to another app with the iOS home indicator, the `TextField` can lose Flutter focus while the iOS keyboard remains visible.
+The sample uses only Flutter `TextField` widgets and logs:
 
-This project intentionally does not include a workaround. It only logs Flutter lifecycle, focus, and inset state.
+- `AppLifecycleState`
+- `FocusManager.instance.primaryFocus`
+- each sample `TextField` focus state
+- `FlutterView.viewInsets.bottom`
+- `MediaQuery.viewInsets.bottom`
 
-## Environment Used While Creating This Sample
+No workaround is applied.
+
+## Screen Recording
+
+[keyboard-stuck-result.mov](media/keyboard-stuck-result.mov)
+
+## Environment
+
+The sample was created with:
 
 ```text
 Flutter 3.35.1 stable
 Dart 3.9.0
 ```
 
-Run `flutter --version` locally and include the exact output when filing an issue.
-
 ## Run
 
 ```bash
 flutter pub get
-flutter devices
 flutter run -d <ios-device-id>
 ```
 
@@ -32,49 +41,31 @@ Use an iOS simulator or a physical iOS device.
 3. Keep the iOS keyboard visible.
 4. Quickly switch to another app using the iOS home indicator.
 5. Return to this Flutter app.
-6. Check the on-screen status panel and logs.
+6. Check the status panel and logs.
 
-## Expected Result
+## Expected
 
-One of these should happen:
+After returning to the app, Flutter should keep text input state consistent.
 
-- The keyboard is dismissed when the `TextField` loses focus.
-- The `TextField` regains focus when the app returns.
+Either:
 
-The app should not end up with no Flutter focus while the iOS keyboard remains visible.
+- the keyboard is dismissed when the `TextField` no longer has focus, or
+- the focused `TextField` remains focused while the keyboard is visible.
 
-## Actual Result To Look For
+## Actual
 
-The suspicious state is:
+The app can return with no sample `TextField` focused while the iOS keyboard and keyboard inset are visible again.
 
-```text
-primaryFocus=null
-actual iOS keyboard still visible
-```
-
-The app also logs:
-
-- `AppLifecycleState`
-- `FocusManager.instance.primaryFocus`
-- `FlutterView.viewInsets.bottom`
-- `MediaQuery.viewInsets.bottom`
-
-If the keyboard is visible while `primaryFocus=null`, record whether `viewInsets.bottom` is still non-zero.
-
-## Notes For Filing A Flutter Issue
-
-Useful details to attach:
-
-- iOS version
-- Flutter version
-- physical device or simulator
-- screen recording
-- logs shown by this app
-- whether focusing another `TextField` reconnects the keyboard
-- whether pressing `Call primaryFocus?.unfocus()` changes anything after the bad state appears
-
-Potential issue title:
+Observed log shape:
 
 ```text
-[iOS] Keyboard remains visible after quick app switch while TextField loses focus
+lifecycle=AppLifecycleState.resumed
+focus after lifecycle change: primaryFocus=_ModalScopeState<dynamic> Focus Scope; textFieldFocus=first=false, second=false, multiline=false
+metrics after lifecycle change: viewInsets.bottom=physical=911.3, logical=303.8
 ```
+
+This suggests that Flutter focus is no longer on a `TextField`, but the iOS keyboard / text input inset is still active.
+
+## Notes
+
+The sample includes a `Call primaryFocus?.unfocus()` button to check whether unfocusing the current primary focus changes the stuck keyboard state after it appears.
