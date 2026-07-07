@@ -14,6 +14,10 @@ No workaround is applied.
 
 ## Screen Recording
 
+
+<img width="663" height="1442" alt="keyboard-stuck-result" src="https://github.com/user-attachments/assets/353823ad-fc12-4805-8a53-cf8d7154d93e" />
+
+
 [keyboard-stuck-result.mov](media/keyboard-stuck-result.mov)
 
 ## Environment
