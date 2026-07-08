@@ -31,7 +31,7 @@ Flutter 3.35.1 stable
 Dart 3.9.0
 ```
 
-Latest verified reproduction:
+Latest verified intermittent reproduction:
 
 ```text
 Flutter 3.44.5 stable
@@ -69,17 +69,47 @@ Either:
 
 ## Actual
 
-The app can return with no sample `TextField` focused while the iOS keyboard and keyboard inset are visible again.
+The app can intermittently return with no sample `TextField` focused while the iOS keyboard and keyboard inset are visible again.
 
-Observed log shape on Flutter 3.44.5:
+The following Flutter 3.44.5 logs were captured from the same physical iPhone run. The issue was reproduced with all three sample `TextField` widgets.
 
-```text
-lifecycle=AppLifecycleState.resumed
-focus after lifecycle change: primaryFocus=_ModalScopeState<dynamic> Focus Scope; textFieldFocus=first=false, second=false, multiline=false
-metrics after lifecycle change: viewInsets.bottom=physical=0.0, logical=0.0
-metrics changed: viewInsets.bottom=physical=117.7, logical=39.2
-metrics changed: viewInsets.bottom=physical=920.6, logical=306.9
-metrics changed: viewInsets.bottom=physical=924.0, logical=308.0
+First `TextField`:
+
+```console
+flutter: 11:19:04.446 primary focus changed: primaryFocus=first_text_field; textFieldFocus=first=true, second=false, multiline=false
+flutter: 11:19:07.275 lifecycle=AppLifecycleState.inactive
+flutter: 11:19:07.275 focus after lifecycle change: primaryFocus=first_text_field; textFieldFocus=first=true, second=false, multiline=false
+flutter: 11:19:07.974 primary focus changed: primaryFocus=_ModalScopeState<dynamic> Focus Scope; textFieldFocus=first=false, second=false, multiline=false
+flutter: 11:19:08.623 lifecycle=AppLifecycleState.resumed
+flutter: 11:19:08.624 focus after lifecycle change: primaryFocus=_ModalScopeState<dynamic> Focus Scope; textFieldFocus=first=false, second=false, multiline=false
+flutter: 11:19:08.624 metrics after lifecycle change: viewInsets.bottom=physical=911.1, logical=303.7
+flutter: 11:19:08.770 metrics changed: viewInsets.bottom=physical=924.0, logical=308.0
+```
+
+Second `TextField`:
+
+```console
+flutter: 11:19:15.704 primary focus changed: primaryFocus=second_text_field; textFieldFocus=first=false, second=true, multiline=false
+flutter: 11:19:16.599 lifecycle=AppLifecycleState.inactive
+flutter: 11:19:16.600 focus after lifecycle change: primaryFocus=second_text_field; textFieldFocus=first=false, second=true, multiline=false
+flutter: 11:19:17.186 primary focus changed: primaryFocus=_ModalScopeState<dynamic> Focus Scope; textFieldFocus=first=false, second=false, multiline=false
+flutter: 11:19:17.950 lifecycle=AppLifecycleState.resumed
+flutter: 11:19:17.950 focus after lifecycle change: primaryFocus=_ModalScopeState<dynamic> Focus Scope; textFieldFocus=first=false, second=false, multiline=false
+flutter: 11:19:17.950 metrics after lifecycle change: viewInsets.bottom=physical=920.7, logical=306.9
+flutter: 11:19:18.047 metrics changed: viewInsets.bottom=physical=924.0, logical=308.0
+```
+
+Multiline `TextField`:
+
+```console
+flutter: 11:19:21.530 primary focus changed: primaryFocus=multiline_text_field; textFieldFocus=first=false, second=false, multiline=true
+flutter: 11:19:22.156 lifecycle=AppLifecycleState.inactive
+flutter: 11:19:22.156 focus after lifecycle change: primaryFocus=multiline_text_field; textFieldFocus=first=false, second=false, multiline=true
+flutter: 11:19:22.913 primary focus changed: primaryFocus=_ModalScopeState<dynamic> Focus Scope; textFieldFocus=first=false, second=false, multiline=false
+flutter: 11:19:23.662 lifecycle=AppLifecycleState.resumed
+flutter: 11:19:23.662 focus after lifecycle change: primaryFocus=_ModalScopeState<dynamic> Focus Scope; textFieldFocus=first=false, second=false, multiline=false
+flutter: 11:19:23.662 metrics after lifecycle change: viewInsets.bottom=physical=917.5, logical=305.8
+flutter: 11:19:23.765 metrics changed: viewInsets.bottom=physical=924.0, logical=308.0
 ```
 
 This suggests that Flutter focus is no longer on a `TextField`, but the iOS keyboard / text input inset is still active.
